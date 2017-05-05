@@ -108,7 +108,7 @@ func addQuote(args *Args) error {
 		return fmt.Errorf("problem closing response body: %s", err)
 	}
 
-	fmt.Printf("%s", responsePayload)
+	fmt.Printf("%s\n", responsePayload)
 
 	return nil
 }
