@@ -118,6 +118,12 @@ func addQuote(args *Args) error {
 		return fmt.Errorf("unable to read response body: %s", err)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		_ = resp.Body.Close()
+		return fmt.Errorf("unexpected HTTP status %d: %s", resp.StatusCode,
+			responsePayload)
+	}
+
 	if err := resp.Body.Close(); err != nil {
 		return fmt.Errorf("problem closing response body: %s", err)
 	}
