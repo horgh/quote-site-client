@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -16,6 +17,7 @@ type Args struct {
 	Title    string
 	Filename string
 	URL      string
+	Image    string
 }
 
 func main() {
@@ -37,6 +39,8 @@ func getArgs() (*Args, error) {
 	title := flag.String("title", "", "Title for the quote.")
 	filename := flag.String("filename", "", "File containing the quote itself.")
 	url := flag.String("url", "", "URL to the quote site API.")
+	image := flag.String("image", "",
+		"Path to the file containing an image (optional).")
 
 	flag.Parse()
 
@@ -61,6 +65,7 @@ func getArgs() (*Args, error) {
 		Title:    *title,
 		Filename: *filename,
 		URL:      *url,
+		Image:    *image,
 	}, nil
 }
 
@@ -75,12 +80,21 @@ func addQuote(args *Args) error {
 		AddedBy string `json:"added_by"`
 		Title   string `json:"title"`
 		Quote   string `json:"quote"`
+		Image   string `json:"image,omitempty"`
 	}
 
 	payload := Payload{
 		AddedBy: args.AddedBy,
 		Title:   args.Title,
 		Quote:   string(quoteBytes),
+	}
+
+	if args.Image != "" {
+		buf, err := ioutil.ReadFile(args.Image)
+		if err != nil {
+			return fmt.Errorf("error reading image: %s: %s", args.Image, err)
+		}
+		payload.Image = base64.StdEncoding.EncodeToString(buf)
 	}
 
 	json, err := json.Marshal(payload)
